@@ -37,11 +37,34 @@ const fetchCoordsByIP = (ip,callback) => {
       return;
     }
     let data = JSON.parse(body);
-    console.log(data);
+    //onsole.log(data);
     let {latitude, longitude} = data;
     callback(error, longitude, latitude);
   });
 };
 
+const fetchISSflyOverTime = (latitude,longitude, callback) => {
+  const url = `https://iss-flyover.herokuapp.com/json/?lat=${latitude}&lon=${longitude}`;
 
-module.exports = {fetchMyIP,fetchCoordsByIP};
+  request(url, (error, response, body) => {
+    if(error) {
+      callback(error,null);
+      return;
+    }
+
+    if(response.statusCode !== 200) {
+      const errMsg = `Statuscode ${response.statusCode} while fetching ISS pass time: ${body}`;
+      return;
+    }
+
+    const passes = JSON.parse(body).response;
+    callback(null, passes);
+  });
+}
+
+
+module.exports = {
+  fetchMyIP,
+  fetchCoordsByIP,
+  fetchISSflyOverTime
+};
